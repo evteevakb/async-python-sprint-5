@@ -281,6 +281,6 @@ POST /files/revisions
 ## Рекомендации к решению
 
 1. За основу можно взять реализацию проекта 4 спринта.
-2. Использовать готовые библиотеки и пакеты, например, для авторизации. Для поиска можно использовать [сервис openbase](https://openbase.com/categories/python){target="_blank"}, [PyPi](https://pypi.org/){target="_blank"} или на [GitHub](https://github.com/search?){target="_blank"}.
-3. Опишите [docker-compose](docker-compose.yml){target="_blank"} для разработки и локального тестирования сервисов.
+2. Использовать готовые библиотеки и пакеты, например, для авторизации. Для поиска можно использовать [сервис openbase](https://openbase.com/categories/python), [PyPi](https://pypi.org/) или на [GitHub](https://github.com/search?).
+3. Опишите [docker-compose](docker-compose.yml) для разработки и локального тестирования сервисов.
 4. Для скачивания файлов можно использовать возможности сервера отдачи статики.
