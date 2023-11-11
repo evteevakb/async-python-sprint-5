@@ -10,6 +10,7 @@ class Users(Base):
     __tablename__ = 'users'
     username = Column(String, primary_key=True)
     password = Column(String, nullable=False)
+    salt = Column(String, nullable=False)
 
 
 # class Tokens(Base):

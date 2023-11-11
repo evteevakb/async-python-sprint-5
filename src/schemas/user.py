@@ -12,10 +12,6 @@ class UserBase(BaseModel):
     password: str
 
 
-class User(UserBase):
-    pass
-
-
 class UserCreate(UserBase):
-    pass
+    salt: str
     
