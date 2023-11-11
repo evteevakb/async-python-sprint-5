@@ -1,4 +1,5 @@
 .env
 .env.app
+minio_data
 pgadmin_data
 postgres_data
