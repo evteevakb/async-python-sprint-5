@@ -9,7 +9,7 @@ from sqlalchemy.sql import text
 
 from core.logger import get_logger
 from db.db import get_session
-from schemas.service_schemas import ServicePing
+from schemas.service import ServicePing
 from storage.storage import MinioClient
 
 

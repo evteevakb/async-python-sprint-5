@@ -101,3 +101,5 @@ services:
     expose:
       - ${SERVER_PORT}
     restart: on-failure:5
+    volumes:
+      - ${MIGRATIONS_DATA}:/src/migrations/versions

@@ -4,6 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 WORKDIR /src
-COPY .env .env.app requirements.txt src ./
+COPY migrations ./migrations
+COPY alembic.ini .env .env.app requirements.txt src ./
 
-RUN pip3 install --upgrade pip && pip3 install -U -r requirements.txt
+RUN pip3 install --no-cache-dir -U -r requirements.txt
