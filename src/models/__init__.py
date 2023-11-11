@@ -2,7 +2,8 @@
 __all__ = [
     "Base",
     "Users",
+    "Tokens",
 ]
 
 from .base import Base
-from .models import Users
+from .models import Tokens, Users

@@ -1,5 +1,5 @@
 """Contains mandatory methods for communication between the database and the application"""
-from typing import Generic, Optional, Type, TypeVar
+from typing import Generic, List, Optional, Type, TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import update
@@ -8,6 +8,9 @@ from sqlalchemy.future import select
 from pydantic import BaseModel
 
 from models.base import Base
+from core.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 ModelTypeT = TypeVar("ModelTypeT", bound=Base)
@@ -20,9 +23,9 @@ class Repository:
         """Create method"""
         raise NotImplementedError
 
-    # async def read(self, database: AsyncSession, entity_id: int):
-    #     """Read method"""
-    #     raise NotImplementedError
+    async def read(self, database: AsyncSession, username: str):
+        """Read method"""
+        raise NotImplementedError
 
     # async def delete(self, database: AsyncSession, entity_id: int):
     #     """Delete method"""
@@ -42,10 +45,10 @@ class RepositoryDB(Repository, Generic[ModelTypeT, CreateSchemaTypeT]):
         await database.refresh(db_obj)
         return db_obj
 
-    # async def read(self, database: AsyncSession, entity_id: int) -> Optional[ModelTypeT]:
-    #     statement = select(self._model).where(self._model.id == entity_id)
-    #     results = await database.execute(statement=statement)
-    #     return results.scalar_one_or_none()
+    async def read(self, database: AsyncSession, username: str) -> Optional[ModelTypeT]:
+        statement = select(self._model).where(self._model.username == username)
+        result = await database.execute(statement=statement)
+        return result.scalar_one_or_none()
 
     # async def delete(self, database: AsyncSession, entity_id: int) -> None:
     #     statement = update(self._model).where(self._model.id == entity_id).values(active=False)

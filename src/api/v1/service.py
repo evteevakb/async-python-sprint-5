@@ -21,7 +21,7 @@ async def ping_database(database: AsyncSession) -> Dict[str, float]:
     """Checks connection to a database.
 
     Args:
-        database (AsyncSession): the database instance.
+        database (AsyncSession): the database session.
 
     Raises:
         HTTPException: if database is unavailable.
@@ -65,7 +65,7 @@ async def ping(database: AsyncSession = Depends(get_session)) -> Dict[str, float
     """Checks the status of additional services.
 
     Args:
-        database (AsyncSession, optional): the database instance. Defaults to Depends(get_session).
+        database (AsyncSession, optional): the database session. Defaults to Depends(get_session).
 
     Raises:
         HTTPException: if any of the services is unavailable.

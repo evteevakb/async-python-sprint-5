@@ -1,4 +1,6 @@
 """Request and response validation schemes for the Users model"""
+import uuid
+
 from pydantic import BaseModel
 
 
@@ -13,5 +15,17 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    salt: str
-    
+    pass
+
+
+class TokenBase(BaseModel):
+    username: str
+    token: str = uuid.uuid4()
+
+
+class TokenCreate(TokenBase):
+    pass
+
+
+class Token(TokenBase):
+    pass
