@@ -1,0 +1,63 @@
+version: '3.1'
+
+services:
+  db:
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    image: postgres:15.4
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    restart: on-failure:5
+    volumes:
+      - ${POSTGRES_DATA}:/var/lib/postgresql/data
+
+  nginx:
+    container_name: nginx
+    depends_on:
+      - webserver
+    image: nginx:1.19.2
+    ports:
+      - '${NGINX_PORT}:${NGINX_PORT}'
+    volumes:
+      - ${NGINX_CONFIG_FILE}:/etc/nginx/nginx.conf:ro
+      - ${NGINX_CONFIG_FOLDER}:/etc/nginx/conf.d:ro
+
+  pgadmin:
+    container_name: pgadmin
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    image: dpage/pgadmin4:7.7
+    ports:
+      - '${PGADMIN_PORT}:${PGADMIN_PORT}'
+    restart: on-failure:5
+    volumes:
+      - ${PGADMIN_DATA}:/var/lib/pgadmin/
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webserver
+    command: python -m gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b ${SERVER_HOST}:${SERVER_PORT} main:app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - SERVER_NAME=${SERVER_NAME}
+      - SERVER_HOST=${SERVER_HOST}
+      - SERVER_PORT=${SERVER_PORT}
+    expose:
+      - ${SERVER_PORT}
+    restart: on-failure:5

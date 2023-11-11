@@ -1,6 +1,6 @@
-# Проектное задание пятого спринта
+# File Storage
 
-Вам необходимо спроектировать и разработать файловое хранилище, которое позволяет хранить различные типы файлов — документы, фотографии, другие данные.
+File storage, empowering you to save a wide array of file types, from essential documents to cherished photos.
 
 ## Описание задания
 
