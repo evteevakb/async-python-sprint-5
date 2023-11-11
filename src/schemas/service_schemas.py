@@ -6,6 +6,8 @@ class ServicePing(BaseModel):
     """Response model for ping endpoint.
 
     Args:
-        status (str): status message.
+        db (float): database ping time in seconds;
+        storage (float): storage ping time in seconds.
     """
-    status: str = 'OK'
+    db: float
+    storage: float

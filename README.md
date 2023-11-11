@@ -1,10 +1,8 @@
 # File Storage
 
-File storage, empowering you to save a wide array of file types, from essential documents to cherished photos.
+File storage, empowering you to save a wide array of file types, from essential documents to cherished photos. By default, the server is hosted at http://localhost:8080, PgAdmin for the database can be accessed at http://localhost:80, MinIO storage - at http://localhost:9001.
 
 ## Описание задания
-
-Реализовать **http-сервис**, который обрабатывает поступающие запросы. Сервер стартует по адресу `http://127.0.0.1:8080` (дефолтное значение, может быть изменено).
 
 <details>
 <summary> Список необходимых эндпойнтов. </summary>

@@ -1,4 +1,5 @@
 """Contains service endpoints"""
+import time
 from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -16,39 +17,51 @@ logger = get_logger(__name__)
 router = APIRouter()
 
 
-async def check_database(database: AsyncSession) -> bool:
+async def ping_database(database: AsyncSession) -> Dict[str, float]:
     """Checks connection to a database.
 
     Args:
         database (AsyncSession): the database instance.
 
+    Raises:
+        HTTPException: if database is unavailable.
+
     Returns:
-        bool: True if the database is connected otherwise False.
+        Dict[str, float]: database ping time in seconds.
     """
     try:
+        start_time = time.time()
         await database.execute(text('SELECT 1'))
-        return True
+        end_time = time.time()
+        return {'db': f'{round((end_time - start_time), 2)}'}
     except OSError as exc:
         logger.error('Database is unavailable: %s', exc)
-        return False
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            detail="Database is unavailable") from exc
 
 
-def check_storage() -> bool:
+def ping_storage() -> Dict[str, float]:
     """Checks connection to a S3 storage.
 
+    Raises:
+        HTTPException: if storage is unavailable.
+
     Returns:
-        bool: True if S3 storage is connected otherwise False.
+        Dict[str, float]: storage ping time in seconds.
     """
     try:
+        start_time = time.time()
         MinioClient()
-        return True
+        end_time = time.time()
+        return {'storage': f'{round((end_time - start_time), 2)}'}
     except (MinioException, S3Error) as exc:
         logger.error('Storage is unavailable: %s', exc)
-        return False
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            detail="Storage is unavailable") from exc
 
 
 @router.get('/ping', response_model=ServicePing)
-async def ping(database: AsyncSession = Depends(get_session)) -> Dict[str, str]:
+async def ping(database: AsyncSession = Depends(get_session)) -> Dict[str, float]:
     """Checks the status of additional services.
 
     Args:
@@ -58,18 +71,12 @@ async def ping(database: AsyncSession = Depends(get_session)) -> Dict[str, str]:
         HTTPException: if any of the services is unavailable.
 
     Returns:
-        Dict[str, str]: status message.
+        Dict[str, float]: dictionary with ping time in seconds for each service.
     """
-    postgres_status = await check_database(database)
-    minio_status = check_storage()
-    if postgres_status and minio_status:
-        return {"status": "OK"}
-    details = {}
-    if not postgres_status:
-        details["postgres"] = "Connection error"
-    if not minio_status:
-        details["minio"] = "Connection error"
-    raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Some services are unavailable: {details}",
-        )
+    try:
+        database_ping_time = await ping_database(database)
+        storage_ping_time = ping_storage()
+        return database_ping_time | storage_ping_time
+    except HTTPException as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            detail=exc.detail) from exc
