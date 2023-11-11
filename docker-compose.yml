@@ -26,11 +26,11 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${MINIO_PORT}/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://${MINIO_HOST}:${MINIO_PORT}/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
-    image: minio/minio:RELEASE.2023-11-06T22-26-08Z
+    image: minio/minio:RELEASE.2023-02-27T18-10-45Z
     ports:
       - '${MINIO_PORT}:${MINIO_PORT}'
       - '${MINIO_INTERFACE_PORT}:${MINIO_INTERFACE_PORT}'
@@ -41,14 +41,15 @@ services:
   minio-mc:
     container_name: minio-mc
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - MINIO_PORT=${MINIO_PORT}
       - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
     entrypoint: "bash /create_bucket.sh"
-    image: minio/mc:RELEASE.2023-11-06T04-19-23Z
+    image: minio/mc:RELEASE.2023-02-28T00-12-59Z
     volumes:
       - ./create_bucket.sh:/create_bucket.sh
 
@@ -90,6 +91,10 @@ services:
       minio:
         condition: service_healthy
     environment:
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - SERVER_NAME=${SERVER_NAME}
       - SERVER_HOST=${SERVER_HOST}
       - SERVER_PORT=${SERVER_PORT}
