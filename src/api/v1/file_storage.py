@@ -84,6 +84,22 @@ async def download_file(database: AsyncSession = Depends(get_session),
                         user: Token = Depends(check_token),
                         filepath: Optional[str] = None,
                         file_id: Optional[int] = None) -> Any:
+    """Downloads a file.
+
+    Args:
+        database (AsyncSession, optional): database session. Defaults to Depends(get_session);
+        user (Token, optional): user information including username and authentication token.
+            Defaults to Depends(check_token);
+        filepath (str, optional): path to the file in the storage. Defaults to None;
+        file_id (int, optional): unique identifier of the file. Defaults to None.
+
+    Raises:
+        HTTPException (422): if both filepath and file ID is not provided;
+        HTTPException (404): if requested file does not exist.
+
+    Returns:
+        StreamingResponse: requested file.
+    """
     if filepath:
         file_db = await files_crud.read_one_by_filepath(database=database, username=user.username,
                                                         filepath=filepath)
@@ -96,4 +112,5 @@ async def download_file(database: AsyncSession = Depends(get_session),
     if file_db is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     file = await minio.download_file(filepath=file_db.filepath)
-    return StreamingResponse(file)
+    return StreamingResponse(file, headers={"Content-Disposition":
+        f"attachment; filename={file_db.filepath.split('/')[-1]}"})
