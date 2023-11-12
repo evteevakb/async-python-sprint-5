@@ -1,5 +1,5 @@
 """Database models"""
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 
 from models.base import Base
 
@@ -18,10 +18,11 @@ class Tokens(Base):
     token = Column(String, nullable=False, unique=True)
 
 
-# class Files(Base):
-#     """Model of the 'files' table"""
-#     __tablename__ = 'files'
-#     file_id = Column(Integer, primary_key=True)
-#     filepath = Column(String, nullable=False, unique=True)
-#     username = Column(String, ForeignKey('users.username'), nullable=False)
+class Files(Base):
+    """Model of the 'files' table"""
+    __tablename__ = 'files'
+    id = Column(Integer, primary_key=True)
+    username = Column(String, ForeignKey('users.username'), nullable=False)
+    filename = Column(String, nullable=False)
+    filepath = Column(String, nullable=False, unique=True)
     

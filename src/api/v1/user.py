@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.db import get_session
-from schemas.user import Token, TokenCreate, UserBase, UserCreate
+from schemas.user import Token, TokenCreate, User, UserCreate
 from services.user import token_crud, users_crud
 from core.logger import get_logger
 
@@ -18,8 +18,15 @@ logger = get_logger(__name__)
 router = APIRouter()
 
 
+async def check_token(token: str, database: AsyncSession = Depends(get_session)) -> None:
+    token_db = await token_crud.read_by_token(database=database, token=token)
+    if not token_db:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    return User(username=token_db.username, password='')
+
+
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register_user(user: UserBase, database: AsyncSession = Depends(get_session)) -> Any:
+async def register_user(user: UserCreate, database: AsyncSession = Depends(get_session)) -> Any:
     """Registers a user. User`s password is stored in the database in a hashed form.
 
     Args:
@@ -39,7 +46,7 @@ async def register_user(user: UserBase, database: AsyncSession = Depends(get_ses
 
 
 @router.post("/auth", response_model=Token, status_code=status.HTTP_200_OK)
-async def authenticate_user(user: UserBase, database: AsyncSession = Depends(get_session)) -> Any:
+async def authenticate_user(user: UserCreate, database: AsyncSession = Depends(get_session)) -> Any:
     """Generates authentication token for a specific user.
 
     Args:
@@ -53,14 +60,14 @@ async def authenticate_user(user: UserBase, database: AsyncSession = Depends(get
     Returns:
         token data containing user`s username and token.
     """
-    user_db = await users_crud.read(database=database, username=user.username)
+    user_db = await users_crud.read_by_username(database=database, username=user.username)
     if user_db is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"User with username '{user.username}' not found")
     if not bcrypt.checkpw(user.password.encode(), user_db.password.encode()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='Password is incorrect')
-    token_db = await token_crud.read(database=database, username=user.username)
+    token_db = await token_crud.read_by_username(database=database, username=user.username)
     if token_db is None:
         token_db = await token_crud.create(database=database,
                                            obj_in=TokenCreate(username=user.username))
