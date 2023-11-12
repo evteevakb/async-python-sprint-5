@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.db import get_session
-from schemas.user import Token, TokenCreate, User, UserCreate
+from schemas.user import Token, TokenCreate, UserCreate
 from services.user import token_crud, users_crud
 from core.logger import get_logger
 
@@ -19,10 +19,22 @@ router = APIRouter()
 
 
 async def check_token(token: str, database: AsyncSession = Depends(get_session)) -> None:
+    """Checks authorization token of specific user.
+
+    Args:
+        token (str): user`s authorization token;
+        database (AsyncSession, optional): database session. Defaults to Depends(get_session).
+
+    Raises:
+        HTTPException (401): if authorization token does not exists.
+
+    Returns:
+        Token: authorization info - username and its token.
+    """
     token_db = await token_crud.read_by_token(database=database, token=token)
     if not token_db:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    return User(username=token_db.username, password='')
+    return Token(username=token_db.username, token=token_db.token)
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)

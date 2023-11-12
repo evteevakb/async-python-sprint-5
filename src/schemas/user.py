@@ -24,7 +24,3 @@ class UserCreate(UserBase):
 
 class Token(TokenBase):
     pass
-
-
-class User(UserBase):
-    pass
