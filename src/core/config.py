@@ -2,11 +2,6 @@
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings
 
-from core.logger import set_logger
-
-
-set_logger()
-
 
 class AppSettings(BaseSettings):
     """Contains application settings"""

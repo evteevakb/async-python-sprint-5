@@ -14,9 +14,6 @@ from schemas.user import Token
 from services.file_storage import files_crud
 from storage.storage import MinioClient
 
-from core.logger import get_logger
-
-logger = get_logger(__name__)
 
 router = APIRouter()
 minio = MinioClient()
@@ -25,6 +22,17 @@ minio = MinioClient()
 @router.get('/files', response_model=List[File])
 async def get_files(database: AsyncSession = Depends(get_session),
                     user: Token = Depends(check_token)) -> Any:
+    """_summary_
+
+    Args:
+        database (AsyncSession, optional): database session. Defaults to Depends(get_session);
+        user (Token, optional): user information including username and authentication token.
+            Defaults to Depends(check_token).
+
+    Returns:
+        List[File]: list with information about each uploaded file including unique identification
+            number of the file and its path in the storage.
+    """
     file_db = await files_crud.read_many_by_username(database=database, username=user.username)
     return [File(id=record.id, filepath=record.filepath) for record in file_db]
 

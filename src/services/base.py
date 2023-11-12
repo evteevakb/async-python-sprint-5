@@ -7,9 +7,6 @@ from sqlalchemy.future import select
 from pydantic import BaseModel
 
 from models.base import Base
-from core.logger import get_logger
-
-logger = get_logger(__name__)
 
 
 ModelTypeT = TypeVar("ModelTypeT", bound=Base)

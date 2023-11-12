@@ -9,10 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.db import get_session
 from schemas.user import Token, TokenCreate, UserCreate
 from services.user import token_crud, users_crud
-from core.logger import get_logger
-
-
-logger = get_logger(__name__)
 
 
 router = APIRouter()

@@ -7,13 +7,11 @@ from miniopy_async.error import MinioException, S3Error
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
 
-from core.logger import get_logger
 from db.db import get_session
 from schemas.service import ServicePing
 from storage.storage import MinioClient
 
 
-logger = get_logger(__name__)
 router = APIRouter()
 
 
@@ -35,7 +33,6 @@ async def ping_database(database: AsyncSession) -> Dict[str, float]:
         end_time = time.time()
         return {'db': f'{round((end_time - start_time), 2)}'}
     except OSError as exc:
-        logger.error('Database is unavailable: %s', exc)
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                             detail="Database is unavailable") from exc
 
@@ -55,7 +52,6 @@ async def ping_storage() -> Dict[str, float]:
         end_time = time.time()
         return {'storage': f'{round((end_time - start_time), 2)}'}
     except (MinioException, S3Error) as exc:
-        logger.error('Storage is unavailable: %s', exc)
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                             detail="Storage is unavailable") from exc
 
