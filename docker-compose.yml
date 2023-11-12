@@ -20,7 +20,7 @@ services:
       - ${POSTGRES_DATA}:/var/lib/postgresql/data
   
   minio:
-    command: server --console-address ":${MINIO_INTERFACE_PORT}" ${MINIO_DATA}
+    command: server --console-address ":${MINIO_INTERFACE_PORT}" /data
     container_name: minio
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
