@@ -2,6 +2,7 @@
 from io import BytesIO
 import os
 
+import aiohttp
 from miniopy_async import Minio
 from miniopy_async.error import MinioException
 
@@ -39,3 +40,18 @@ class MinioClient:
         content = BytesIO(content)
         await self.minio.put_object(bucket_name=self.bucket, object_name=filepath,
                                     data=content, length=content.getbuffer().nbytes)
+
+    async def download_file(self, filepath: str) -> BytesIO:
+        """Downloads a file from the storage.
+
+        Args:
+            filepath (str): path to the file in the storage.
+
+        Returns:
+            BytesIO: binary stream.
+        """
+        async with aiohttp.ClientSession() as session:
+            response = await self.minio.get_object(bucket_name=self.bucket, object_name=filepath,
+                                                   session=session)
+            file = await response.read()
+        return BytesIO(file)

@@ -4,6 +4,7 @@ from typing import Annotated, Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Query
 from fastapi import File as FAFile
+from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -76,3 +77,23 @@ async def upload_file(database: AsyncSession = Depends(get_session),
     except IntegrityError as exc:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
                             detail=f"File with filepath '{filepath}' already exists") from exc
+
+
+@router.get('/files/download', status_code=status.HTTP_200_OK)
+async def download_file(database: AsyncSession = Depends(get_session),
+                        user: Token = Depends(check_token),
+                        filepath: Optional[str] = None,
+                        file_id: Optional[int] = None) -> Any:
+    if filepath:
+        file_db = await files_crud.read_one_by_filepath(database=database, username=user.username,
+                                                        filepath=filepath)
+    elif file_id:
+        file_db = await files_crud.read_one_by_id(database=database, username=user.username,
+                                                  entity_id=file_id)
+    else:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="File ID or file path must be provided")
+    if file_db is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    file = await minio.download_file(filepath=file_db.filepath)
+    return StreamingResponse(file)
