@@ -23,6 +23,4 @@ class Files(Base):
     __tablename__ = 'files'
     id = Column(Integer, primary_key=True)
     username = Column(String, ForeignKey('users.username'), nullable=False)
-    filename = Column(String, nullable=False)
     filepath = Column(String, nullable=False, unique=True)
-    

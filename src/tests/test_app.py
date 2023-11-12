@@ -10,7 +10,8 @@ TEST_USERNAME = 'test_username'
 TEST_PASSWORD = 'test_password'
 TEST_INCORRECT_USERNAME = 'incorrect_username'
 TEST_INCORRECT_PASSWORD = 'incorrect_password'
-
+TEST_INCORRECT_TOKEN = 'test_token'
+TEST_FILE = 'tests/test_app.py'
 
 pytestmark = pytest.mark.asyncio
 
@@ -66,4 +67,14 @@ class TestUser:
                                      json={'username': TEST_USERNAME,
                                            'password': TEST_INCORRECT_PASSWORD})
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        
+
+
+class TestFiles:
+    """Tests for checking endpoints in 'file_storage' tag"""
+    @pytest.mark.dependency(depends=["TestService::test_ping"])
+    async def test_upload_authentication_required(self, client: AsyncClient) -> None:
+        """Tests POST /files/upload for authentication requirement"""
+        response = await client.post(app.url_path_for('upload_file'),
+                                     params={'token': TEST_INCORRECT_TOKEN},
+                                     files={'uploadFile': open(TEST_FILE, 'rb')})
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
