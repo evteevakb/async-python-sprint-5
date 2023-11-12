@@ -1,7 +1,7 @@
 import os
 
-from minio import Minio
-from minio.error import MinioException
+from miniopy_async import Minio
+from miniopy_async.error import MinioException
 
 
 MINIO_BUCKET = os.environ['MINIO_BUCKET_NAME']
@@ -15,5 +15,8 @@ class MinioClient:
         self.minio = Minio(f'minio:{MINIO_PORT}', access_key=MINIO_ROOT_USER,
                            secret_key=MINIO_ROOT_PASSWORD, secure=False)
         self.bucket = MINIO_BUCKET
-        if not self.minio.bucket_exists(self.bucket):
+
+    async def check_bucket(self) -> None:
+        result = await self.minio.bucket_exists(self.bucket)
+        if not result:
             raise MinioException(f'Bucket {self.bucket} does not exist')

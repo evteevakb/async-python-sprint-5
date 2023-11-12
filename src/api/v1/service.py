@@ -3,7 +3,7 @@ import time
 from typing import Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from minio.error import MinioException, S3Error
+from miniopy_async.error import MinioException, S3Error
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
 
@@ -40,7 +40,7 @@ async def ping_database(database: AsyncSession) -> Dict[str, float]:
                             detail="Database is unavailable") from exc
 
 
-def ping_storage() -> Dict[str, float]:
+async def ping_storage() -> Dict[str, float]:
     """Checks connection to a S3 storage.
 
     Raises:
@@ -51,7 +51,7 @@ def ping_storage() -> Dict[str, float]:
     """
     try:
         start_time = time.time()
-        MinioClient()
+        await MinioClient().check_bucket()
         end_time = time.time()
         return {'storage': f'{round((end_time - start_time), 2)}'}
     except (MinioException, S3Error) as exc:
@@ -75,7 +75,7 @@ async def ping(database: AsyncSession = Depends(get_session)) -> Dict[str, float
     """
     try:
         database_ping_time = await ping_database(database)
-        storage_ping_time = ping_storage()
+        storage_ping_time = await ping_storage()
         return database_ping_time | storage_ping_time
     except HTTPException as exc:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
