@@ -1,6 +1,6 @@
 """Contains API endpoints for file listing, uploading and downloading"""
 import os
-from typing import Annotated, Any, List
+from typing import Annotated, Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Query
 from fastapi import File as FAFile
@@ -19,10 +19,10 @@ router = APIRouter()
 minio = MinioClient()
 
 
-@router.get('/files', response_model=List[File])
+@router.get('/files', response_model=Optional[List[File]])
 async def get_files(database: AsyncSession = Depends(get_session),
                     user: Token = Depends(check_token)) -> Any:
-    """_summary_
+    """Returns list of uploaded files
 
     Args:
         database (AsyncSession, optional): database session. Defaults to Depends(get_session);
@@ -34,7 +34,9 @@ async def get_files(database: AsyncSession = Depends(get_session),
             number of the file and its path in the storage.
     """
     file_db = await files_crud.read_many_by_username(database=database, username=user.username)
-    return [File(id=record.id, filepath=record.filepath) for record in file_db]
+    if file_db is not None:
+        return [File(id=record.id, filepath=record.filepath) for record in file_db]
+    return []
 
 
 
