@@ -6,7 +6,9 @@ from core.config import app_settings
 
 
 # an Engine, which the Session will use for connection
-engine = create_async_engine(app_settings.database_dsn.unicode_string(), echo=True, future=True)
+engine = create_async_engine(app_settings.database_dsn.unicode_string(),
+                             echo=app_settings.database_echo,
+                             future=True)
 # generate Session object
 async_session = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False

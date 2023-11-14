@@ -7,6 +7,7 @@ class AppSettings(BaseSettings):
     """Contains application settings"""
     app_title: str = 'URL Shortener'
     database_dsn: PostgresDsn
+    database_echo: bool = True
 
     class Config:
         """Application environment variables"""
