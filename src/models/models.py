@@ -1,6 +1,6 @@
 """Database models"""
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import relationship
 
 from core.config import app_settings
 from models.base import Base
