@@ -1,7 +1,9 @@
 """Request and response validation schemes for the Users and Token models"""
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from core.config import app_settings
 
 
 class TokenBase(BaseModel):
@@ -11,8 +13,8 @@ class TokenBase(BaseModel):
        username (str): name of a user;
        token (str): user`s authentication token.
     """
-    username: str
-    token: str = uuid.uuid4()
+    username: str = Field(..., max_length=app_settings.max_username_length)
+    token: str = Field(uuid.uuid4(), max_length=app_settings.max_token_length)
 
 
 class UserBase(BaseModel):
@@ -22,8 +24,8 @@ class UserBase(BaseModel):
         username (str): name of a user;
         password (str): user`s password.
     """
-    username: str
-    password: str
+    username: str = Field(..., max_length=app_settings.max_username_length)
+    password: str = Field(..., max_length=app_settings.max_password_length)
 
 
 class TokenCreate(TokenBase):

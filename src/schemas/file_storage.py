@@ -1,5 +1,7 @@
 """Request and response validation schemes for the Files model"""
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from core.config import app_settings
 
 
 class FileBase(BaseModel):
@@ -13,8 +15,8 @@ class FileCreate(FileBase):
        username (str): name of a user;
        filepath (str): path to a file in the storage.
     """
-    username: str
-    filepath: str
+    username: str = Field(..., max_length=app_settings.max_username_length)
+    filepath: str = Field(..., max_length=app_settings.max_filepath_length)
 
 
 class File(FileBase):
@@ -25,5 +27,5 @@ class File(FileBase):
         filepath (str): path to a file in the storage.
     """
     id: int
-    filepath: str
+    filepath: str = Field(..., max_length=app_settings.max_filepath_length)
     

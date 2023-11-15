@@ -8,7 +8,7 @@ from main import app
 
 TEST_USERNAME = 'test_username'
 TEST_PASSWORD = 'test_password'
-TEST_INCORRECT_USERNAME = 'incorrect_username'
+TEST_INCORRECT_USERNAME = 'incorrect_usrnm'
 TEST_INCORRECT_PASSWORD = 'incorrect_password'
 TEST_INCORRECT_TOKEN = 'test_token'
 TEST_FILE = 'tests/test_file.txt'
